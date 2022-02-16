@@ -1,7 +1,6 @@
 package bug
 
 import (
-	"encoding/json"
 	"text/template"
 
 	"github.com/sirupsen/logrus"
@@ -94,7 +93,7 @@ func View() slack.ModalViewRequest {
 
 // validateSubmissionHandler validates user input
 func validateSubmissionHandler() interactions.PartialHandler {
-	return interactions.PartialHandlerFunc(string(Identifier)+".validate", func(callback *slack.InteractionCallback, logger *logrus.Entry) (bool, []byte, error) {
+	return interactions.PartialHandlerFunc(string(Identifier)+".validate", func(callback *slack.InteractionCallback, logger *logrus.Entry) (bool, interface{}, error) {
 		// if someone selected the "other" component, make sure they fill in the field
 		otherSelected := false
 		for _, action := range callback.View.State.Values[blockIdCategory] {
@@ -106,15 +105,11 @@ func validateSubmissionHandler() interactions.PartialHandler {
 			for _, action := range callback.View.State.Values[blockIdOptional] {
 				if action.Value == "" {
 					logger.Debug("Detected invalid submission.")
-					response, err := json.Marshal(&slack.ViewSubmissionResponse{
+					response := &slack.ViewSubmissionResponse{
 						ResponseAction: slack.RAErrors,
 						Errors: map[string]string{
 							blockIdOptional: "Provide a description of the other component.",
 						},
-					})
-					if err != nil {
-						logger.WithError(err).Error("Failed to marshal view submission response.")
-						return true, nil, err
 					}
 					return true, response, nil
 				}

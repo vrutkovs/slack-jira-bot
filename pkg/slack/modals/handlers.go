@@ -2,7 +2,6 @@ package modals
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"text/template"
@@ -28,7 +27,7 @@ type ViewUpdater interface {
 // UpdateViewForButtonPress updates the given View if the interaction
 // being handled was the identified button being pushed
 func UpdateViewForButtonPress(identifier, buttonId string, updater ViewUpdater, view slack.ModalViewRequest) interactions.PartialHandler {
-	return interactions.PartialHandlerFunc(identifier, func(callback *slack.InteractionCallback, logger *logrus.Entry) (bool, []byte, error) {
+	return interactions.PartialHandlerFunc(identifier, func(callback *slack.InteractionCallback, logger *logrus.Entry) (bool, interface{}, error) {
 		// if someone pushed the identified button, show them that form
 		if len(callback.ActionCallback.BlockActions) > 0 {
 			action := callback.ActionCallback.BlockActions[0]
@@ -70,7 +69,7 @@ func (p *JiraIssueParameters) Process(callback *slack.InteractionCallback) (stri
 // calls needed to file the issue often take longer than the 3sec TTL on
 // responding to the interaction payload we have.
 func ToJiraIssue(parameters JiraIssueParameters, filer jira.IssueFiler, updater ViewUpdater) interactions.Handler {
-	return interactions.HandlerFunc(string(parameters.Id)+".jira", func(callback *slack.InteractionCallback, logger *logrus.Entry) (output []byte, err error) {
+	return interactions.HandlerFunc(string(parameters.Id)+".jira", func(callback *slack.InteractionCallback, logger *logrus.Entry) (output interface{}, err error) {
 		logger.Infof("Submitting new %s to Jira.", parameters.Id)
 
 		go func() {
@@ -99,13 +98,9 @@ func ToJiraIssue(parameters JiraIssueParameters, filer jira.IssueFiler, updater 
 		}()
 
 		// respond to the HTTP payload from Slack with a submission response
-		response, err := json.Marshal(&slack.ViewSubmissionResponse{
+		response := &slack.ViewSubmissionResponse{
 			ResponseAction: slack.RAUpdate,
 			View:           PendingJiraView(),
-		})
-		if err != nil {
-			logger.WithError(err).Error("Failed to marshal View update submission response.")
-			return nil, err
 		}
 		return response, nil
 	})

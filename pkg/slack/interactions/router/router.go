@@ -44,7 +44,7 @@ type modalRouter struct {
 }
 
 // Handle routes the interaction callback to the appropriate handler
-func (r *modalRouter) Handle(callback *slack.InteractionCallback, logger *logrus.Entry) (output []byte, err error) {
+func (r *modalRouter) Handle(callback *slack.InteractionCallback, logger *logrus.Entry) (output interface{}, err error) {
 	switch callback.Type {
 	case slack.InteractionTypeShortcut:
 		return nil, r.viewForShortcut(callback, logger)
@@ -99,7 +99,7 @@ func (r *modalRouter) openModal(id modals.Identifier, triggerID string, logger *
 }
 
 // delegate routes the interaction callback to the appropriate handler
-func (r *modalRouter) delegate(callback *slack.InteractionCallback, logger *logrus.Entry) (output []byte, err error) {
+func (r *modalRouter) delegate(callback *slack.InteractionCallback, logger *logrus.Entry) (output interface{}, err error) {
 	id := modals.Identifier(callback.View.PrivateMetadata)
 	logger = logger.WithField("view_id", id)
 	handlersForId, registered := r.handlersByIdAndType[id]

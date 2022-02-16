@@ -139,8 +139,12 @@ func main() {
 						log.Printf("Could not type cast the event to the InteractionCallback: %v\n", event)
 						continue
 					}
-					socketClient.Ack(*event.Request)
-					interactionrouter.ForModals(issueFiler, slackClient).Handle(&interactionData, logger)
+					payload, err := interactionrouter.ForModals(issueFiler, slackClient).Handle(&interactionData, logger)
+					if err != nil {
+						log.Printf("error building payload: %v\n", payload)
+						continue
+					}
+					socketClient.Ack(*event.Request, payload)
 				}
 			}
 		}
