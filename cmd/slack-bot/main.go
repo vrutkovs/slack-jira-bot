@@ -11,17 +11,14 @@ import (
 	"strconv"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
-	"google.golang.org/api/option"
 
 	"k8s.io/test-infra/pkg/flagutil"
 	"k8s.io/test-infra/prow/config"
 	"k8s.io/test-infra/prow/config/secret"
 	prowflagutil "k8s.io/test-infra/prow/flagutil"
-	configflagutil "k8s.io/test-infra/prow/flagutil/config"
 	"k8s.io/test-infra/prow/interrupts"
 	"k8s.io/test-infra/prow/logrusutil"
 	"k8s.io/test-infra/prow/metrics"
@@ -29,10 +26,11 @@ import (
 	"k8s.io/test-infra/prow/pjutil/pprof"
 	"k8s.io/test-infra/prow/simplifypath"
 
-	eventhandler "github.com/openshift/ci-tools/pkg/slack/events"
-	eventrouter "github.com/openshift/ci-tools/pkg/slack/events/router"
 	interactionhandler "github.com/openshift/ci-tools/pkg/slack/interactions"
 	interactionrouter "github.com/openshift/ci-tools/pkg/slack/interactions/router"
+	eventhandler "github.com/vrutkovs/slack-jira-bot/pkg/slack/events"
+	eventrouter "github.com/vrutkovs/slack-jira-bot/pkg/slack/events/router"
+
 	"github.com/vrutkovs/slack-jira-bot/pkg/jira"
 )
 
@@ -43,8 +41,6 @@ type options struct {
 	gracePeriod            time.Duration
 	instrumentationOptions prowflagutil.InstrumentationOptions
 	jiraOptions            prowflagutil.JiraOptions
-
-	prowconfig configflagutil.ConfigOptions
 
 	slackTokenPath         string
 	slackSigningSecretPath string
@@ -64,7 +60,7 @@ func (o *options) Validate() error {
 		return fmt.Errorf("--slack-signing-secret-path is required")
 	}
 
-	for _, group := range []flagutil.OptionGroup{&o.instrumentationOptions, &o.jiraOptions, &o.prowconfig} {
+	for _, group := range []flagutil.OptionGroup{&o.instrumentationOptions, &o.jiraOptions} {
 		if err := group.Validate(false); err != nil {
 			return err
 		}
@@ -80,9 +76,7 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 	fs.StringVar(&o.logLevel, "log-level", "info", "Level at which to log output.")
 	fs.DurationVar(&o.gracePeriod, "grace-period", 180*time.Second, "On shutdown, try to handle remaining events for the specified duration. ")
 
-	o.prowconfig.ConfigPathFlagName = "prow-config-path"
-	o.prowconfig.JobConfigPathFlagName = "prow-job-config-path"
-	for _, group := range []flagutil.OptionGroup{&o.instrumentationOptions, &o.jiraOptions, &o.prowconfig} {
+	for _, group := range []flagutil.OptionGroup{&o.instrumentationOptions, &o.jiraOptions} {
 		group.AddFlags(fs)
 	}
 
@@ -114,11 +108,6 @@ func main() {
 	level, _ := logrus.ParseLevel(o.logLevel)
 	logrus.SetLevel(level)
 
-	configAgent, err := o.prowconfig.ConfigAgent()
-	if err != nil {
-		logrus.WithError(err).Fatal("Error starting Prow config agent.")
-	}
-
 	if err := secret.Add(o.slackTokenPath, o.slackSigningSecretPath); err != nil {
 		logrus.WithError(err).Fatal("Error starting secrets agent.")
 	}
@@ -132,11 +121,6 @@ func main() {
 	issueFiler, err := jira.NewIssueFiler(slackClient, jiraClient.JiraClient())
 	if err != nil {
 		logrus.WithError(err).Fatal("Could not initialize Jira issue filer.")
-	}
-
-	gcsClient, err := storage.NewClient(interrupts.Context(), option.WithoutAuthentication())
-	if err != nil {
-		logrus.WithError(err).Fatal("Could not initialize GCS client.")
 	}
 
 	metrics.ExposeMetrics("slack-bot", config.PushGateway{}, o.instrumentationOptions.MetricsPort)
@@ -155,8 +139,8 @@ func main() {
 	mux := http.NewServeMux()
 	// handle the root to allow for a simple uptime probe
 	mux.Handle("/", handler(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { writer.WriteHeader(http.StatusOK) })))
+	mux.Handle("/slack/events-endpoint", handler(handleEvent(secret.GetTokenGenerator(o.slackSigningSecretPath), eventrouter.ForEvents(slackClient))))
 	mux.Handle("/slack/interactive-endpoint", handler(handleInteraction(secret.GetTokenGenerator(o.slackSigningSecretPath), interactionrouter.ForModals(issueFiler, slackClient))))
-	mux.Handle("/slack/events-endpoint", handler(handleEvent(secret.GetTokenGenerator(o.slackSigningSecretPath), eventrouter.ForEvents(slackClient, configAgent.Config, gcsClient))))
 	server := &http.Server{Addr: ":" + strconv.Itoa(o.port), Handler: mux}
 
 	health.ServeReady()

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ProjectMGMT = "MGMT"
+	ProjectMGMT = "JIRAPLAY"
 
 	IssueTypeBug      = "Bug"
 	IssueTypeIncident = "Incident"
