@@ -7,9 +7,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 
-	"github.com/openshift/ci-tools/pkg/jira"
-	"github.com/openshift/ci-tools/pkg/slack/interactions"
-	"github.com/openshift/ci-tools/pkg/slack/modals"
+	"github.com/vrutkovs/slack-jira-bot/pkg/jira"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/interactions"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/modals"
 )
 
 // Identifier is the view identifier for this modal

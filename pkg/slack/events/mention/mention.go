@@ -8,9 +8,9 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 
-	"github.com/openshift/ci-tools/pkg/slack/events"
-	"github.com/openshift/ci-tools/pkg/slack/modals"
-	"github.com/openshift/ci-tools/pkg/slack/modals/bug"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/events"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/modals"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/modals/bug"
 )
 
 type messagePoster interface {

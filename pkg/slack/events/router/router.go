@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/slack-go/slack"
 
-	"github.com/openshift/ci-tools/pkg/slack/events"
-	"github.com/openshift/ci-tools/pkg/slack/events/mention"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/events"
+	"github.com/vrutkovs/slack-jira-bot/pkg/slack/events/mention"
 )
 
 // ForEvents returns a Handler that appropriately routes

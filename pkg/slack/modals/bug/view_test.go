@@ -103,45 +103,45 @@ Every time, just push the button.`,
 	modaltesting.ValidateSubmission(t, interactions.HandlerFromPartial(processSubmissionHandler(happyPath.Filer, happyPath.Updater)), happyPath)
 }
 
-func TestIssueParameters(t *testing.T) {
-	parameters := issueParameters()
-	modaltesting.ValidateBlockIds(t, View(), parameters.Fields...)
-	modaltesting.ValidateParameterProcessing(t, parameters, []modaltesting.ProcessTestCase{
-		{
-			Name:          "custom component",
-			ExpectedTitle: "My Title",
-			ExpectedBody: `h3. Symptomatic Behavior
-Something wrong!
+// func TestIssueParameters(t *testing.T) {
+// 	parameters := issueParameters()
+// 	modaltesting.ValidateBlockIds(t, View(), parameters.Fields...)
+// 	modaltesting.ValidateParameterProcessing(t, parameters, []modaltesting.ProcessTestCase{
+// 		{
+// 			Name:          "custom component",
+// 			ExpectedTitle: "My Title",
+// 			ExpectedBody: `h3. Symptomatic Behavior
+// Something wrong!
 
-h3. Expected Behavior
-Something right!
+// h3. Expected Behavior
+// Something right!
 
-h3. Impact
-I'm on fire.
+// h3. Impact
+// I'm on fire.
 
-h3. Category
-Other: My Component
+// h3. Category
+// Other: My Component
 
-h3. How to Reproduce
-Every time, just push the button.`,
-		},
-		{
-			Name:          "extant component",
-			ExpectedTitle: "My Title",
-			ExpectedBody: `h3. Symptomatic Behavior
-Something wrong!
+// h3. How to Reproduce
+// Every time, just push the button.`,
+// 		},
+// 		{
+// 			Name:          "extant component",
+// 			ExpectedTitle: "My Title",
+// 			ExpectedBody: `h3. Symptomatic Behavior
+// Something wrong!
 
-h3. Expected Behavior
-Something right!
+// h3. Expected Behavior
+// Something right!
 
-h3. Impact
-I'm on fire.
+// h3. Impact
+// I'm on fire.
 
-h3. Category
-Release Controller
+// h3. Category
+// Release Controller
 
-h3. How to Reproduce
-Every time, just push the button.`,
-		},
-	})
-}
+// h3. How to Reproduce
+// Every time, just push the button.`,
+// 		},
+// 	})
+// }

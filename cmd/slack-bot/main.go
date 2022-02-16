@@ -18,8 +18,8 @@ import (
 	prowflagutil "k8s.io/test-infra/prow/flagutil"
 	"k8s.io/test-infra/prow/logrusutil"
 
-	interactionrouter "github.com/openshift/ci-tools/pkg/slack/interactions/router"
 	eventrouter "github.com/vrutkovs/slack-jira-bot/pkg/slack/events/router"
+	interactionrouter "github.com/vrutkovs/slack-jira-bot/pkg/slack/interactions/router"
 
 	"github.com/vrutkovs/slack-jira-bot/pkg/jira"
 )

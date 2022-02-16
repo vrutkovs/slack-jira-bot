@@ -23,8 +23,11 @@ require (
 	github.com/GoogleCloudPlatform/testgrid v0.0.68 // indirect
 	github.com/andygrunwald/go-gerrit v0.0.0-20210709065208-9d38b0be0268 // indirect
 	github.com/aws/aws-sdk-go v1.37.22 // indirect
+	github.com/bazelbuild/buildtools v0.0.0-20200922170545-10384511ce98 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/bwmarrin/snowflake v0.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/clarketm/json v1.13.4 // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denormal/go-gitignore v0.0.0-20180930084346-ae8ad1d07817 // indirect
@@ -35,6 +38,7 @@ require (
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/fvbommel/sortorder v1.0.1 // indirect
+	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -64,12 +68,15 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/openshift/api v0.0.0-20210730095913-85e1d547cdee // indirect
+	github.com/openshift/hive/apis v0.0.0-20220124211047-fcac82e4f82f // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shurcooL/githubv4 v0.0.0-20210725200734-83ba7b4c9228 // indirect
 	github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -118,6 +125,6 @@ require (
 replace (
 	github.com/openshift/ci-tools/pkg/jira => ./pkg/jira
 	github.com/openshift/ci-tools/pkg/slack/events/mention => ./pkg/slack/events/mention
-	github.com/openshift/ci-tools/pkg/slack/modals/bug => ./pkg/slack/modals/bug
+	github.com/openshift/ci-tools/pkg/slack/modals => ./pkg/slack/modals
 	k8s.io/client-go => k8s.io/client-go v0.22.0
 )

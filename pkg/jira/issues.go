@@ -88,8 +88,8 @@ func (f *filer) FileIssue(issueType, title, description, reporter string, logger
 		"type":     issueType,
 	}).Debug("Filing Jira issue.")
 	toCreate := &jira.Issue{Fields: &jira.IssueFields{
-		Project:     f.project,
-		Reporter:    requester,
+		Project: f.project,
+		// Reporter:    requester,
 		Type:        f.issueTypesByName[issueType],
 		Summary:     title,
 		Description: description,
