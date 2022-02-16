@@ -140,7 +140,7 @@ func NewIssueFiler(slackClient *slack.Client, jiraClient *jira.Client) (IssueFil
 	for _, t := range project.IssueTypes {
 		filer.issueTypesByName[t.Name] = t
 	}
-	for _, name := range []string{IssueTypeRequest, IssueTypeStory, IssueTypeBug, IssueTypeIncident, IssueTypeTask} {
+	for _, name := range []string{IssueTypeBug} {
 		if _, found := filer.issueTypesByName[name]; !found {
 			return nil, fmt.Errorf("could not find issue type %s in Jira for project %s", name, ProjectMGMT)
 		}
