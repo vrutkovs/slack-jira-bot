@@ -10,14 +10,12 @@ import (
 	"github.com/openshift/ci-tools/pkg/jira"
 	"github.com/openshift/ci-tools/pkg/slack/interactions"
 	"github.com/openshift/ci-tools/pkg/slack/modals"
-	"github.com/openshift/ci-tools/pkg/slack/modals/helpdesk"
 )
 
 // Identifier is the view identifier for this modal
 const Identifier modals.Identifier = "bug"
 
 const (
-	blockIdQuestion     = "question"
 	blockIdCategory     = "category"
 	blockIdOptional     = "optional"
 	blockIdSymptom      = "symptom"
@@ -25,10 +23,10 @@ const (
 	blockIdImpact       = "impact"
 	blockIdReproduction = "reproduction"
 
-	optionJobs              = "CI Jobs"
-	optionSearch            = "CI Search"
-	optionReleaseController = "Release Controller"
-	optionOther             = "Other"
+	componentAI    = "Assisted Installer"
+	componentUI    = "MGMT UI"
+	componentSNO   = "SNO"
+	componentOther = "Other"
 )
 
 // View is the modal view for submitting a new bug to Jira
@@ -47,23 +45,6 @@ func View() slack.ModalViewRequest {
 					Text: "Use this form to report a bug in the test platform or infrastructure.",
 				},
 			},
-			&slack.SectionBlock{
-				Type: slack.MBTSection,
-				Text: &slack.TextBlockObject{
-					Type: slack.PlainTextType,
-					Text: "Please be certain that what you are reporting is a bug in the system. If it's not clear, please ask a question from the Test Platform Help-Desk engineer using the question form instead.",
-				},
-				Accessory: &slack.Accessory{
-					ButtonElement: &slack.ButtonBlockElement{
-						Type:  slack.METButton,
-						Text:  &slack.TextBlockObject{Type: slack.PlainTextType, Text: "Ask a Question"},
-						Value: blockIdQuestion,
-					},
-				},
-			},
-			&slack.DividerBlock{
-				Type: slack.MBTDivider,
-			},
 			&slack.InputBlock{
 				Type:    slack.MBTInput,
 				BlockID: modals.BlockIdTitle,
@@ -73,15 +54,15 @@ func View() slack.ModalViewRequest {
 			&slack.InputBlock{
 				Type:    slack.MBTInput,
 				BlockID: blockIdCategory,
-				Label:   &slack.TextBlockObject{Type: slack.PlainTextType, Text: "What test infrastructure component is affected?"},
+				Label:   &slack.TextBlockObject{Type: slack.PlainTextType, Text: "What component is affected?"},
 				Element: &slack.SelectBlockElement{
 					Type:        slack.OptTypeStatic,
 					Placeholder: &slack.TextBlockObject{Type: slack.PlainTextType, Text: "Select a category..."},
 					Options: []*slack.OptionBlockObject{
-						{Value: optionJobs, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: optionJobs}},
-						{Value: optionSearch, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: optionSearch}},
-						{Value: optionReleaseController, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: optionReleaseController}},
-						{Value: optionOther, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: optionOther}},
+						{Value: componentAI, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: componentAI}},
+						{Value: componentUI, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: componentUI}},
+						{Value: componentSNO, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: componentSNO}},
+						{Value: componentOther, Text: &slack.TextBlockObject{Type: slack.PlainTextType, Text: componentOther}},
 					},
 				},
 			},
@@ -107,26 +88,8 @@ func View() slack.ModalViewRequest {
 				Label:   &slack.TextBlockObject{Type: slack.PlainTextType, Text: "What behavior did you expect instead?"},
 				Element: &slack.PlainTextInputBlockElement{Type: slack.METPlainTextInput, Multiline: true},
 			},
-			&slack.InputBlock{
-				Type:    slack.MBTInput,
-				BlockID: blockIdImpact,
-				Label:   &slack.TextBlockObject{Type: slack.PlainTextType, Text: "What is the impact of this bug? How many jobs or users are impacted?"},
-				Element: &slack.PlainTextInputBlockElement{Type: slack.METPlainTextInput, Multiline: true},
-			},
-			&slack.InputBlock{
-				Type:    slack.MBTInput,
-				BlockID: blockIdReproduction,
-				Label:   &slack.TextBlockObject{Type: slack.PlainTextType, Text: "Is this bug reproducible? If so, how?"},
-				Element: &slack.PlainTextInputBlockElement{Type: slack.METPlainTextInput, Multiline: true},
-			},
 		}},
 	}
-}
-
-// helpdeskButtonHandler redirects the user to the helpdesk flow
-// if they request it via button push
-func helpdeskButtonHandler(updater modals.ViewUpdater) interactions.Handler {
-	return interactions.HandlerFromPartial(modals.UpdateViewForButtonPress(string(Identifier)+".question", blockIdQuestion, updater, helpdesk.View()))
 }
 
 // validateSubmissionHandler validates user input
@@ -135,7 +98,7 @@ func validateSubmissionHandler() interactions.PartialHandler {
 		// if someone selected the "other" component, make sure they fill in the field
 		otherSelected := false
 		for _, action := range callback.View.State.Values[blockIdCategory] {
-			if action.SelectedOption.Value == optionOther {
+			if action.SelectedOption.Value == componentOther {
 				otherSelected = true
 			}
 		}
@@ -171,15 +134,9 @@ func issueParameters() modals.JiraIssueParameters {
 h3. Expected Behavior
 {{ .` + blockIdExpected + ` }}
 
-h3. Impact
-{{ .` + blockIdImpact + ` }}
-
 h3. Category
-{{ if eq .` + blockIdCategory + `_static_select "Other" }}Other: {{ .` + blockIdOptional + ` }}{{ else }}{{ .` + blockIdCategory + `_static_select }}{{ end }}
-
-h3. How to Reproduce
-{{ .` + blockIdReproduction + ` }}`)),
-		Fields: []string{modals.BlockIdTitle, blockIdCategory, blockIdOptional, blockIdSymptom, blockIdExpected, blockIdImpact, blockIdReproduction},
+{{ if eq .` + blockIdCategory + `_static_select "Other" }}Other: {{ .` + blockIdOptional + ` }}{{ else }}{{ .` + blockIdCategory + `_static_select }}{{ end }}`)),
+		Fields: []string{modals.BlockIdTitle, blockIdCategory, blockIdOptional, blockIdSymptom, blockIdExpected},
 	}
 }
 
@@ -191,7 +148,6 @@ func processSubmissionHandler(filer jira.IssueFiler, updater modals.ViewUpdater)
 // Register creates a registration entry for the bug form
 func Register(filer jira.IssueFiler, client *slack.Client) *modals.FlowWithViewAndFollowUps {
 	return modals.ForView(Identifier, View()).WithFollowUps(map[slack.InteractionType]interactions.Handler{
-		slack.InteractionTypeBlockActions: helpdeskButtonHandler(client),
 		slack.InteractionTypeViewSubmission: interactions.MultiHandler(
 			validateSubmissionHandler(),
 			processSubmissionHandler(filer, client),

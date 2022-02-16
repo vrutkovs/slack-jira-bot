@@ -11,11 +11,6 @@ import (
 	"github.com/openshift/ci-tools/pkg/slack/events"
 	"github.com/openshift/ci-tools/pkg/slack/modals"
 	"github.com/openshift/ci-tools/pkg/slack/modals/bug"
-	"github.com/openshift/ci-tools/pkg/slack/modals/consultation"
-	"github.com/openshift/ci-tools/pkg/slack/modals/enhancement"
-	"github.com/openshift/ci-tools/pkg/slack/modals/helpdesk"
-	"github.com/openshift/ci-tools/pkg/slack/modals/incident"
-	"github.com/openshift/ci-tools/pkg/slack/modals/triage"
 )
 
 type messagePoster interface {
@@ -58,33 +53,8 @@ func responseFor(message string) []slack.Block {
 	interactions := []interaction{
 		{
 			identifier:  bug.Identifier,
-			description: "Record a defect in the test infrastructure, providing a reproducer where possible.",
+			description: "File a new bug.",
 			buttonText:  "File a Bug",
-		},
-		{
-			identifier:  consultation.Identifier,
-			description: "Ask for input from the Test Platform team to aid in achieving some goal.",
-			buttonText:  "Request a Consultation",
-		},
-		{
-			identifier:  enhancement.Identifier,
-			description: "Explain how a new feature or infrastructure component could improve your productivity.",
-			buttonText:  "Describe an Enhancement",
-		},
-		{
-			identifier:  helpdesk.Identifier,
-			description: "Request clarification on best practices for using the test infrastructure.",
-			buttonText:  "Ask a Question",
-		},
-		{
-			identifier:  incident.Identifier,
-			description: "File a tracking issue for an ongoing operational incident with the test infrastructure.",
-			buttonText:  "Track an Incident",
-		},
-		{
-			identifier:  triage.Identifier,
-			description: "Contact the on-call Test Platform engineer to alert them of an outage.",
-			buttonText:  "Report an Outage",
 		},
 	}
 
