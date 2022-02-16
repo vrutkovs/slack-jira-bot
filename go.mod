@@ -122,4 +122,9 @@ require (
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
-replace k8s.io/client-go => k8s.io/client-go v0.22.0
+replace (
+	github.com/openshift/ci-tools/pkg/jira => ./pkg/jira
+	github.com/openshift/ci-tools/pkg/slack/events/mention => ./pkg/slack/events/mention
+	github.com/openshift/ci-tools/pkg/slack/modals/bug => ./pkg/slack/modals/bug
+	k8s.io/client-go => k8s.io/client-go v0.22.0
+)
