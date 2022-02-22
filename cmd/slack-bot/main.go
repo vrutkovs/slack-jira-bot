@@ -35,6 +35,7 @@ type options struct {
 	slackTokenPath         string
 	slackAppTokenPath      string
 	slackSigningSecretPath string
+	jiraProject            string
 }
 
 func (o *options) Validate() error {
@@ -53,6 +54,10 @@ func (o *options) Validate() error {
 
 	if o.slackSigningSecretPath == "" {
 		return fmt.Errorf("--slack-signing-secret-path is required")
+	}
+
+	if o.jiraProject == "" {
+		return fmt.Errorf("--jira-project is required")
 	}
 
 	for _, group := range []flagutil.OptionGroup{&o.instrumentationOptions, &o.jiraOptions} {
@@ -78,6 +83,7 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 	fs.StringVar(&o.slackTokenPath, "slack-token-path", "", "Path to the file containing the Slack token to use.")
 	fs.StringVar(&o.slackAppTokenPath, "slack-app-token-path", "", "Path to the file containing the Slack app token to use.")
 	fs.StringVar(&o.slackSigningSecretPath, "slack-signing-secret-path", "", "Path to the file containing the Slack signing secret to use.")
+	fs.StringVar(&o.jiraProject, "jira-project", "", "Jira project name.")
 
 	if err := fs.Parse(args); err != nil {
 		logrus.WithError(err).Fatal("Could not parse args.")
@@ -105,7 +111,7 @@ func main() {
 	}
 
 	slackClient := slack.New(string(secret.GetSecret(o.slackTokenPath)), slack.OptionAppLevelToken(string(secret.GetSecret(o.slackAppTokenPath))))
-	issueFiler, err := jira.NewIssueFiler(slackClient, jiraClient.JiraClient())
+	issueFiler, err := jira.NewIssueFiler(slackClient, jiraClient.JiraClient(), o.jiraProject)
 	if err != nil {
 		logrus.WithError(err).Fatal("Could not initialize Jira issue filer.")
 	}

@@ -14,8 +14,6 @@ import (
 )
 
 const (
-	ProjectMGMT = "JIRAPLAY"
-
 	IssueTypeBug      = "Bug"
 	IssueTypeIncident = "Incident"
 	IssueTypeRequest  = "Request"
@@ -125,16 +123,16 @@ func (f *filer) resolveRequester(reporter string, logger *logrus.Entry) (string,
 	return suffix, requester
 }
 
-func NewIssueFiler(slackClient *slack.Client, jiraClient *jira.Client) (IssueFiler, error) {
+func NewIssueFiler(slackClient *slack.Client, jiraClient *jira.Client, jiraProject string) (IssueFiler, error) {
 	filer := &filer{
 		slackClient:      slackClient,
 		jiraClient:       &jiraAdapter{delegate: jiraClient},
 		issueTypesByName: map[string]jira.IssueType{},
 	}
 
-	project, response, err := jiraClient.Project.Get(ProjectMGMT)
+	project, response, err := jiraClient.Project.Get(jiraProject)
 	if err := jirautil.JiraError(response, err); err != nil {
-		return nil, fmt.Errorf("could not find Jira project %s: %w", ProjectMGMT, err)
+		return nil, fmt.Errorf("could not find Jira project %s: %w", jiraProject, err)
 	}
 	filer.project = *project
 	for _, t := range project.IssueTypes {
@@ -142,7 +140,7 @@ func NewIssueFiler(slackClient *slack.Client, jiraClient *jira.Client) (IssueFil
 	}
 	for _, name := range []string{IssueTypeBug} {
 		if _, found := filer.issueTypesByName[name]; !found {
-			return nil, fmt.Errorf("could not find issue type %s in Jira for project %s", name, ProjectMGMT)
+			return nil, fmt.Errorf("could not find issue type %s in Jira for project %s", name, jiraProject)
 		}
 	}
 
