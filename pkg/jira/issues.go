@@ -85,12 +85,17 @@ func (f *filer) FileIssue(issueType, title, description, reporter string, logger
 		"reporter": requester.Name,
 		"type":     issueType,
 	}).Debug("Filing Jira issue.")
+	emptyAffectsVersions := []*jira.AffectsVersion{
+		{
+			Name: "AI",
+		},
+	}
 	toCreate := &jira.Issue{Fields: &jira.IssueFields{
-		Project: f.project,
-		// Reporter:    requester,
-		Type:        f.issueTypesByName[issueType],
-		Summary:     title,
-		Description: description,
+		Project:         f.project,
+		AffectsVersions: emptyAffectsVersions,
+		Type:            f.issueTypesByName[issueType],
+		Summary:         title,
+		Description:     description,
 	}}
 	issue, response, err := f.jiraClient.CreateIssue(toCreate)
 	return issue, jirautil.JiraError(response, err)
